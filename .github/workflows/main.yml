@@ -38,4 +38,4 @@ jobs:
         run: aws s3 cp ./publish/ s3://${{ env.S3_BUCKET }}/${{ env.ARTIFACT_NAME }} --recursive
 
       - name: Create new Lambda version
-        run: aws lambda create-function --function-name ${{ env.LAMBDA_NAME }} --code S3Bucket=${{ env.S3_BUCKET }},S3Key=${{ env.ARTIFACT_NAME }} --handler your-assembly-name::your-namespace-name.Function::Handler --runtime dotnetcore6.0 --role arn:aws:iam::105319023386:role/lambda-function-role --description "New version created from CI/CD pipeline"
+        run: aws lambda create-function --function-name ${{ env.LAMBDA_NAME }} --code S3Bucket=${{ env.S3_BUCKET }},S3Key=${{ env.ARTIFACT_NAME }} --handler your-assembly-name::your-namespace-name.Function::Handler --runtime dotnet6 --role arn:aws:iam::105319023386:role/lambda-function-role --description "New version created from CI/CD pipeline"
