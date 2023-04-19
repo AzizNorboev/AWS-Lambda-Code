@@ -1,37 +1,41 @@
-name: build-and-deploy
+name: CI/CD for .NET 6 Lambda
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+
+env:
+  AWS_REGION: us-east-1
+  LAMBDA_NAME: LibraryLamda
+  S3_BUCKET: lambda-code-bucket-new
+  ARTIFACT_NAME: LibrarySqsLambda.zip
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET 6
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '6.0.x'
-    - name: Build with dotnet
-      run: dotnet build --configuration Release
-    - name: Publish to S3
-      uses: jakejscott/aws-s3-deploy@v1.3.3
-      with:
-        args: --acl public-read --delete
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        SOURCE_DIR: ./bin/Release/net6.0/publish
-        S3_BUCKET: lambda-code-bucket-new
-    - name: Update Lambda Function
-      uses: aws-actions/aws-lambda-deploy@v0.1.0
-      with:
-        function-name: LibraryLamda
-        s3-bucket: lambda-code-bucket-new
-        s3-object: LambdaCode/LambdaCode/LibrarySqsLambda.zip
-        publish: true
-      env:
-        AWS_REGION: us-east-1
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - uses: actions/checkout@v2
+
+      - name: Install .NET 6 SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.x
+          
+      - name: Build .NET 6 Lambda code
+        run: dotnet publish -c Release -o ./publish --runtime linux-x64 ./LibrarySqsLambda/LibrarySqsLambda/src/LibrarySqsLambda/LibrarySqsLambda.csproj
+   
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Upload code to S3
+        run: aws s3 cp ./publish/ s3://${{ env.S3_BUCKET }}/${{ env.ARTIFACT_NAME }} --recursive
+
+      - name: Create new Lambda version
+        run: aws lambda create-function --function-name ${{ env.LAMBDA_NAME }} --code S3Bucket=${{ env.S3_BUCKET }},S3Key=${{ env.ARTIFACT_NAME }} --handler your-assembly-name::your-namespace-name.Function::Handler --runtime dotnetcore3.1 --role your-lambda-function-role-arn --environment Variables={YourKey=YourValue} --description "New version created from CI/CD pipeline"
