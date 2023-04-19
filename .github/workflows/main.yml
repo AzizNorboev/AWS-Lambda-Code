@@ -27,9 +27,9 @@ jobs:
     - name: Update Lambda Function
       uses: aws-actions/aws-lambda-deploy@v0.1.0
       with:
-        function-name: your-lambda-function-name
+        function-name: LibraryLamda
         s3-bucket: lambda-code-bucket-new
-        s3-object: your-lambda-code-object-key # TODO:
+        s3-object: LambdaCode/LambdaCode/LibrarySqsLambda.zip
         publish: true
       env:
         AWS_REGION: us-east-1
