@@ -29,7 +29,7 @@ jobs:
       with:
         function-name: your-lambda-function-name
         s3-bucket: lambda-code-bucket-new
-        s3-object: your-lambda-code-object-key # TODO:
+        s3-object: LambdaCode/LibraryAPI.zip
         publish: true
       env:
         AWS_REGION: us-east-1
