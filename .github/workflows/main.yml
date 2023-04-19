@@ -10,6 +10,7 @@ env:
   LAMBDA_NAME: LibraryLamda
   S3_BUCKET: lambda-code-bucket-new
   ARTIFACT_NAME: LibrarySqsLambda.zip
+  S3_Key: LambdaCode/LambdaCode/LibrarySqsLambda.zip
 
 jobs:
   build:
@@ -38,4 +39,10 @@ jobs:
         run: aws s3 cp ./publish/ s3://${{ env.S3_BUCKET }}/${{ env.ARTIFACT_NAME }} --recursive
 
       - name: Create new Lambda version
-        run: aws lambda update-function-code --function-name ${{ env.LAMBDA_NAME }} --s3-Bucket=${{ env.S3_BUCKET }} --s3-Key LambdaCode/LambdaCode/LibrarySqsLambda.zip --runtime dotnet6 --role arn:aws:iam::105319023386:role/lambda-function-role --description "New version created from CI/CD pipeline"
+        run: aws lambda update-function-code \ 
+        --function-name=${{ env.LAMBDA_NAME }} \
+        --s3-Bucket=${{ env.S3_BUCKET }} \
+        --s3-Key=${{ env.S3_Key }} \
+        --runtime dotnet6 \
+        --role arn:aws:iam::105319023386:role/lambda-function-role \
+        --description "New version created from CI/CD pipeline"
