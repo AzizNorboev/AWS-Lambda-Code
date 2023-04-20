@@ -29,10 +29,20 @@ namespace LibrarySqsLambda
         /// <returns></returns>
         public async Task FunctionHandler(SQSEvent evnt, ILambdaContext context)
         {
-            foreach (var message in evnt.Records)
-            {
-                await ProcessMessageAsync(message, context);
-            }
+            context.Logger.LogInformation($"it's empty");
+            //if (evnt != null)
+            //{
+            //    foreach (var message in evnt.Records)
+            //    {
+            //        await ProcessMessageAsync(message, context);
+            //    }
+            //}
+            //else
+            //{
+            //    {
+            //        context.Logger.LogInformation($"it's empty");
+            //    }
+            //}
         }
 
         private async Task ProcessMessageAsync(SQSEvent.SQSMessage message, ILambdaContext context)
