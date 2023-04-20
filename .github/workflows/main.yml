@@ -25,7 +25,6 @@ jobs:
 
       - name: Build and package .NET Lambda
         run: |
-          dotnet restore
           dotnet lambda package --configuration release --framework dotnet6 --output-package ${env.ARTIFACT_NAME}
           
       - name: Configure AWS credentials
