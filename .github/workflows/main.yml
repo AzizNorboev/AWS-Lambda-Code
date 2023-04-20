@@ -9,7 +9,7 @@ env:
   AWS_REGION: us-east-1
   LAMBDA_NAME: LibrarySqsLambda
   S3_BUCKET: lambda-code-bucket-new
-  ARTIFACT_NAME: LambdaCode/LibrarySqsLambda.zip
+  ARTIFACT_NAME: LibraryLambdaCode/LibrarySqsLambda.zip
   S3_Key: LambdaCode/LambdaCode/LibrarySqsLambda.zip
 
 jobs:
