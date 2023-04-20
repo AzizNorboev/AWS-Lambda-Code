@@ -27,14 +27,16 @@ jobs:
         run: |
           dotnet restore
           dotnet lambda package --configuration release --framework dotnet6 --output-package ${env.ARTIFACT_NAME}
+          
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Upload Lambda package to S3
-        uses: aws-actions/amazon-s3-upload@v2
-        with:
-          region: us-east-1
-          bucket-name: ${{ env.S3_BUCKET }}
-          object-key: LambdaCode/LambdaCode/${{ env.ARTIFACT_NAME }}
-          file-path: ./${{ env.ARTIFACT_NAME }}
+        run: aws s3 cp bin/Release/net6.0/LibrarySqsLambda.zip s3://${{ env.S3_BUCKET }}/LambdaFunctionCode/
 
       - name: Update Lambda function with new code
         run: aws lambda update-function-code --function-name ${{ env.LAMBDA_NAME }} --s3-bucket ${{ env.S3_BUCKET }} --s3-key LambdaCode/LambdaCode/${{ env.ARTIFACT_NAME }}
