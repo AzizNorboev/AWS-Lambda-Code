@@ -1,4 +1,4 @@
-name: CI/CD for .NET 6 Lambda
+name: Deploy Lambda to S3
 
 on:
   push:
@@ -6,36 +6,35 @@ on:
       - main
 
 env:
-  AWS_REGION: us-east-1
+  DOTNET_ROOT: /usr/share/dotnet
   LAMBDA_NAME: LibrarySqsLambda-CICD
   S3_BUCKET: lambda-code-bucket-new
-  ARTIFACT_NAME: LambdaFunctionCode/LibrarySqsLambda.zip
+  ARTIFACT_NAME: LibrarySqsLambda.zip
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Install .NET 6 SDK
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      
+      - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 6.0.x
-          
-      - name: Build .NET 6 Lambda code
-        run: dotnet publish -c Release -o ./publish --runtime linux-x64 ./LibrarySqsLambda/LibrarySqsLambda/src/LibrarySqsLambda/LibrarySqsLambda.csproj
-   
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: Build and package .NET Lambda
+        run: |
+          dotnet restore
+          dotnet lambda package --configuration release --framework dotnet6 --output-package ${env.ARTIFACT_NAME}
+
+      - name: Upload Lambda package to S3
+        uses: aws-actions/amazon-s3-upload@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          region: us-east-1
+          bucket-name: ${{ env.S3_BUCKET }}
+          object-key: LambdaCode/LambdaCode/${{ env.ARTIFACT_NAME }}
+          file-path: ./${{ env.ARTIFACT_NAME }}
 
-      - name: Upload code to S3
-        run: aws s3 cp ./publish/ s3://${{ env.S3_BUCKET }}/${{ env.ARTIFACT_NAME }} --recursive
-
-      - name: Create new Lambda version
-        run: aws lambda create-function --function-name ${{ env.LAMBDA_NAME }} --code S3Bucket=${{ env.S3_BUCKET }},S3Key=${{ env.ARTIFACT_NAME }} --handler LibrarySqsLambda::LibrarySqsLambda.Function::FunctionHandler --runtime dotnet6 --role arn:aws:iam::105319023386:role/lambda-function-role --description "New version created from CI/CD pipeline"
+      - name: Update Lambda function with new code
+        run: aws lambda update-function-code --function-name ${{ env.LAMBDA_NAME }} --s3-bucket ${{ env.S3_BUCKET }} --s3-key LambdaCode/LambdaCode/${{ env.ARTIFACT_NAME }}
