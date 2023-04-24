@@ -25,7 +25,7 @@ jobs:
 
       - name: Build and package .NET Lambda
         run: |
-          dotnet lambda package ./LibrarySqsLambda/LibrarySqsLambda/src/LibrarySqsLambda/LibrarySqsLambda.csproj --configuration release --framework dotnet6 --output-package ${{ env.ARTIFACT_NAME }}
+          dotnet publish -c Release -o ./publish --runtime linux-x64 ./LibrarySqsLambda/LibrarySqsLambda/src/LibrarySqsLambda/LibrarySqsLambda.csproj
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
