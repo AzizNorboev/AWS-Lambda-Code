@@ -36,7 +36,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Upload Lambda package to S3
-        run: aws s3 cp ./publish/ s3://${{ env.S3_BUCKET }}/${{ env.ARTIFACT_NAME }} --recursive
+        run: aws s3 cp ./publish/ s3://${{ env.S3_BUCKET }}/LambdaFunctionCode --recursive
 
       - name: Update Lambda function with new code
         run: aws lambda update-function-code --function-name ${{ env.LAMBDA_NAME }} --s3-bucket ${{ env.S3_BUCKET }} --s3-key LambdaFunctionCode/LibrarySqsLambda.zip
