@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
-      
+
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
@@ -26,7 +26,7 @@ jobs:
       - name: Build and package .NET Lambda
         run: |
           dotnet lambda package LibrarySqsLambda/LibrarySqsLambda/src/LibrarySqsLambda/LibrarySqsLambda.csproj --configuration release --framework dotnet6 --output-package ${{ env.ARTIFACT_NAME }}
-          
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -38,4 +38,4 @@ jobs:
         run: aws s3 cp bin/Release/net6.0/LibrarySqsLambda.zip s3://${{ env.S3_BUCKET }}/LambdaFunctionCode/
 
       - name: Update Lambda function with new code
-        run: aws lambda update-function-code --function-name ${{ env.LAMBDA_NAME }} --s3-bucket ${{ env.S3_BUCKET }} --s3-key LambdaCode/LambdaCode/${{ env.ARTIFACT_NAME }}
+        run: aws lambda update-function-code --function-name ${{ env.LAMBDA_NAME }} --s3-bucket ${{ env.S3_BUCKET }} --s3-key LambdaFunctionCode/LibrarySqsLambda.zip
