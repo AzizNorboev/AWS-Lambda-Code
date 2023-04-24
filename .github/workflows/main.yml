@@ -10,6 +10,7 @@ env:
   LAMBDA_NAME: LibrarySqsLambda-CICD
   S3_BUCKET: lambda-code-bucket-new
   ARTIFACT_NAME: LibrarySqsLambda.zip
+  AWS_REGION: us-east-1
 
 jobs:
   build-and-deploy:
