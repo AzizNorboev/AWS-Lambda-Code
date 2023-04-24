@@ -9,7 +9,7 @@ env:
   DOTNET_ROOT: /usr/share/dotnet
   LAMBDA_NAME: LibrarySqsLambda-CICD
   S3_BUCKET: lambda-code-bucket-new
-  ARTIFACT_NAME: LibrarySqsLambda.zip
+  ARTIFACT_NAME: LambdaFunctionCode/LibrarySqsLambda.zip
   AWS_REGION: us-east-1
 
 jobs:
