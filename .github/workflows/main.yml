@@ -27,6 +27,8 @@ jobs:
       - name: Build and package .NET Lambda
         run: |
           dotnet publish -c Release -o ./publish --runtime linux-x64 ./LibrarySqsLambda/LibrarySqsLambda/src/LibrarySqsLambda/LibrarySqsLambda.csproj
+          cd publish
+          zip -r ../LibrarySqsLambda.zip .
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -36,7 +38,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Upload Lambda package to S3
-        run: aws s3 cp ./publish/ s3://${{ env.S3_BUCKET }}/LambdaFunctionCode --recursive
+        run: aws s3 cp LibrarySqsLambda.zip s3://${{ env.S3_BUCKET }}/LambdaFunctionCode/LibrarySqsLambda.zip
 
       - name: Update Lambda function with new code
         run: aws lambda update-function-code --function-name ${{ env.LAMBDA_NAME }} --s3-bucket ${{ env.S3_BUCKET }} --s3-key LambdaFunctionCode/LibrarySqsLambda.zip
